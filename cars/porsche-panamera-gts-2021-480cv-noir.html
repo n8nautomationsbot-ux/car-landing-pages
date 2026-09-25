@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>معرض السيارة - جودة عالية من قوقل درايف</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #0b0f19; color: #fff; display: flex; flex-direction: column; align-items: center; padding: 20px; min-height: 100vh; }
+        .car-header { text-align: center; margin-bottom: 25px; width: 100%; max-width: 750px; }
+        .car-title { font-size: 26px; color: #38bdf8; margin-bottom: 8px; }
+        .car-price { font-size: 22px; font-weight: bold; color: #4ade80; }
+        .feed-container { width: 100%; max-width: 750px; display: flex; flex-direction: column; gap: 25px; }
+        .image-card { background: #1e293b; border-radius: 14px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; background-color: #000; cursor: pointer; }
+        .image-card img { width: 100%; height: auto; display: block; image-rendering: -webkit-optimize-contrast; }
+        .lightbox { display: none; position: fixed; z-index: 9999; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.95); justify-content: center; align-items: center; padding: 20px; }
+        .lightbox.active { display: flex; }
+        .lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; }
+        .close-btn { position: absolute; top: 20px; left: 30px; color: #fff; font-size: 40px; font-weight: bold; cursor: pointer; background: rgba(255,255,255,0.1); width: 50px; height: 50px; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
+    </style>
+</head>
+<body>
+    <div class="car-header">
+        <h1 class="car-title">تفاصيل السيارة: عرض حصري</h1>
+        <p class="car-price">السعر: يرجى التواصل</p>
+    </div>
+    <div class="feed-container" id="image-feed"></div>
+    <div class="lightbox" id="lightbox">
+        <span class="close-btn" id="close-lightbox">&times;</span>
+        <img id="lightbox-img" src="" alt="صورة مكبرة">
+    </div>
+    <script>
+        const carImages = [
+    "https://lh3.googleusercontent.com/d/1ztjIt79balTczAPimWpiZftrl4BKjDsE=s1000",
+    "https://lh3.googleusercontent.com/d/1f7zB8Hc1Ly7RI3jJeoMLg1vETfpaMA0I=s1000",
+    "https://lh3.googleusercontent.com/d/14QM3-tk_-mC5ZlhmhYiXItvbS3NXBeO5=s1000",
+    "https://lh3.googleusercontent.com/d/1dV9YiFyhSseuzQ8eu6zLwmTIQkwYTbWi=s1000",
+    "https://lh3.googleusercontent.com/d/1nwWv8KVboFHMP5KnrNuqKHPdCAKhv03n=s1000",
+    "https://lh3.googleusercontent.com/d/1GTsNewkpgq-jBjSMJO9L8u960lXvhgyC=s1000",
+    "https://lh3.googleusercontent.com/d/1kAF75_YbrBOMkpej-tWTVmyV2LQZANcH=s1000",
+    "https://lh3.googleusercontent.com/d/1oPtYgIW3hzSR3973Fjo7CVuXNHSkvkwE=s1000",
+    "https://lh3.googleusercontent.com/d/1x5XvLkdvdaCUYc6bZOChzPErWjYgz7Ax=s1000",
+    "https://lh3.googleusercontent.com/d/1N19_qjM2gD98idciEev7dGuBCLZZK1ny=s1000",
+    "https://lh3.googleusercontent.com/d/1AxHBcr41dsA_QplrYHSWUNv8ioB9j_rQ=s1000",
+    "https://lh3.googleusercontent.com/d/1bRVcAbJHDyczUyKDiFTauI_efmSET6xf=s1000",
+    "https://lh3.googleusercontent.com/d/16PIQwdNmhare6-fIHFwZFvY1o7QSp9IW=s1000",
+    "https://lh3.googleusercontent.com/d/1X711myPiMfeBpPtmCMIgyNM9mfTevhUw=s1000",
+    "https://lh3.googleusercontent.com/d/1HEbGjsYrRoYt02_LRZ2S0cUEomDI2urI=s1000",
+    "https://lh3.googleusercontent.com/d/1rSSuMMj5Y1Nr5Z1QApbrWTsKQgu3YZni=s1000",
+    "https://lh3.googleusercontent.com/d/1LdKq683vYZ-D63GddJQOIdGxeMZpafzJ=s1000",
+    "https://lh3.googleusercontent.com/d/1YQ2SX_LZJl1tku-NBAFUOSAix8dI_zRW=s1000",
+    "https://lh3.googleusercontent.com/d/1f0ZBSnmBvfFa74r0wYl4nZgaryWqLqvV=s1000",
+    "https://lh3.googleusercontent.com/d/1Ms9ZtO66Zk3Shhp6Y0EJ7pt9EUGGnlhR=s1000",
+    "https://lh3.googleusercontent.com/d/1NJBVzJlW3XeRIlcJWJoOlTCHTYSJ4HYt=s1000"
+];
+
+        const feedContainer = document.getElementById('image-feed');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const closeLightbox = document.getElementById('close-lightbox');
+
+        if (carImages.length === 0) {
+            feedContainer.innerHTML = "<p style='text-align:center;'>لا توجد صور متاحة حالياً.</p>";
+        } else {
+            carImages.forEach((url, index) => {
+                const card = document.createElement('div');
+                card.className = 'image-card';
+                const img = document.createElement('img');
+                img.src = url;
+                img.alt = `صورة السيارة رقم ${index + 1}`;
+                img.loading = "lazy";
+                card.addEventListener('click', () => {
+                    lightboxImg.src = url;
+                    lightbox.classList.add('active');
+                });
+                card.appendChild(img);
+                feedContainer.appendChild(card);
+            });
+        }
+        closeLightbox.addEventListener('click', () => { lightbox.classList.remove('active'); });
+        lightbox.addEventListener('click', (e) => { if (e.target === lightbox) { lightbox.classList.remove('active'); } });
+    </script>
+</body>
+</html>
