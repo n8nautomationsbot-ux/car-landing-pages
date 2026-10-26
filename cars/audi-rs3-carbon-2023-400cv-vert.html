@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>معرض صور السيارة</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #07090e; color: #fff; display: flex; flex-direction: column; align-items: center; padding: 15px; min-height: 100vh; }
+        
+        /* حاوية الصور مرتبة وواضحة */
+        .feed-container { width: 100%; max-width: 650px; display: flex; flex-direction: column; gap: 15px; margin-top: 10px; }
+        
+        .image-card { background: #111827; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; cursor: pointer; border: 1px solid #1f2937; transition: transform 0.2s ease; }
+        .image-card:active { transform: scale(0.98); }
+        .image-card img { width: 100%; height: auto; display: block; image-rendering: -webkit-optimize-contrast; object-fit: cover; }
+        
+        /* نافذة التكبير (Lightbox) الفخمة */
+        .lightbox { display: none; position: fixed; z-index: 9999; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.96); justify-content: center; align-items: center; padding: 10px; }
+        .lightbox.active { display: flex; }
+        .lightbox img { max-width: 100%; max-height: 90vh; object-fit: contain; border-radius: 6px; box-shadow: 0 0 25px rgba(0,0,0,0.8); }
+        
+        .close-btn { position: absolute; top: 20px; left: 20px; color: #fff; font-size: 32px; font-weight: bold; cursor: pointer; background: rgba(255,255,255,0.15); width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: none; outline: none; }
+        
+        .no-images { text-align: center; color: #9ca3af; margin-top: 50px; font-size: 16px; }
+    </style>
+</head>
+<body>
+
+    <div class="feed-container" id="image-feed"></div>
+
+    <div class="lightbox" id="lightbox">
+        <button class="close-btn" id="close-lightbox">&times;</button>
+        <img id="lightbox-img" src="" alt="صورة مكبرة للسيارة">
+    </div>
+
+    <script>
+        const carImages = [
+    "https://lh3.googleusercontent.com/d/undefined=s1600"
+];
+
+        const feedContainer = document.getElementById('image-feed');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const closeLightbox = document.getElementById('close-lightbox');
+
+        if (carImages.length === 0) {
+            feedContainer.innerHTML = "<div class='no-images'>عذراً، لا توجد صور متاحة لهذه السيارة حالياً.</div>";
+        } else {
+            carImages.forEach((url, index) => {
+                const card = document.createElement('div');
+                card.className = 'image-card';
+                
+                const img = document.createElement('img');
+                img.src = url;
+                img.alt = `صورة السيارة رقم ${index + 1}`;
+                img.loading = index < 2 ? "eager" : "lazy"; // أول صورتين يتحملان بسرعة فائقة
+                
+                card.addEventListener('click', () => {
+                    lightboxImg.src = url;
+                    lightbox.classList.add('active');
+                });
+                
+                card.appendChild(img);
+                feedContainer.appendChild(card);
+            });
+        }
+
+        closeLightbox.addEventListener('click', () => { lightbox.classList.remove('active'); });
+        lightbox.addEventListener('click', (e) => { if (e.target === lightbox) { lightbox.classList.remove('active'); } });
+    </script>
+</body>
+</html>
